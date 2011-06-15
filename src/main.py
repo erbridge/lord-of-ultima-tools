@@ -1,7 +1,7 @@
 # www.lordofultima.com/en/wiki/view/units
-# TODO: add research modifiers
 
-import copy, pickle, Tkinter, tkMessageBox, tkFileDialog
+
+import copy, Tkinter, tkMessageBox, tkFileDialog
 
 
 class NotCreatedError(Exception):   pass
@@ -40,11 +40,15 @@ class Units:
         self._defDamage = defDamage
         self._damage = damage
         self._capacity = capacity
+        self._combatResearch = 1
         
     def create(self, number):
         unit = copy.deepcopy(self)
         unit._number = number
         return unit
+    
+    def setResearch(self, combatResearch=1):
+        self._combatResearch = combatResearch
             
     def getName(self):
         return self._name
@@ -59,7 +63,7 @@ class Units:
         return self._type
     
     def getAttack(self):
-        return self._attack
+        return self._attack * self._combatResearch
     
     def getCost(self):
         return self.getNumber() * self._unitCost
@@ -510,15 +514,20 @@ class App:
         
     def _createUnitInputBoxes(self):
         unitFrame = Tkinter.Frame(self._frame)
-        Tkinter.Label(unitFrame, text="Available Units:").pack()
+        Tkinter.Label(
+            unitFrame, text="Available Units and Combat Research:").pack()
         frame = Tkinter.Frame(unitFrame)
         self._unitInput = [None]*len(UNITS)
+        self._combatResearchInput = [None]*len(UNITS)
         for id in xrange(len(UNITS)):
             self._unitInput[id] = Tkinter.Entry(frame)
             self._unitInput[id].grid(row=id, column=0)
+            Tkinter.Label(frame, text=" (").grid(row=id, column=1)
+            self._combatResearchInput[id] = Tkinter.Entry(frame, width=3)
+            self._combatResearchInput[id].grid(row=id, column=2)
             Tkinter.Label(
-                frame, text=UNITS[id].getName()).grid(
-                    row=id, column=1, sticky=Tkinter.W)
+                frame, text="%)  "+UNITS[id].getName()).grid(
+                    row=id, column=3, sticky=Tkinter.W)
         frame.pack()
         unitFrame.grid(row=0, column=0, sticky=Tkinter.N)
         
@@ -569,6 +578,17 @@ class App:
     def _onCalculate(self, sent=False):
         units = []#[None]*len(UNITS)
         for id in xrange(len(UNITS)):
+            combatResearch = self._combatResearchInput[id].get()
+            try:
+                combatResearch = float(combatResearch) / 100. + 1.
+                if combatResearch > 1:
+                    UNITS[id].setResearch(combatResearch)
+                elif combatResearch < 0:
+                    self._popupDialog("You need a positive research percentage.")
+                    return None
+            except ValueError:
+                UNITS[id].setResearch()
+            
             unitNumber = self._unitInput[id].get()
             try:
                 unitNumber = int(unitNumber)
@@ -576,14 +596,11 @@ class App:
                     units.append(UNITS[id].create(unitNumber))
                 elif unitNumber < 0:
                     self._popupDialog("You need a positive number of units.")
-                    return None 
+                    return None
             except ValueError:
                 pass
-#                unitNumber = 0
-#            if unitNumber:
-#                units[id] = UNITS[id].create(unitNumber)
                 
-        monsters = []#[None]*len(MONSTERS)
+        monsters = []
         for id in xrange(len(MONSTERS)):
             monsterNumber = self._monsterInput[id].get()
             try:
@@ -592,9 +609,6 @@ class App:
                     monsters.append(MONSTERS[id].create(monsterNumber))
             except ValueError:
                 pass
-#                monsterNumber = 0
-#            if monsterNumber:
-#                monsters[id] = MONSTERS[id].create(monsterNumber)
                 
         raid = DungeonRaid(units, expectedMonsters=monsters)
         try:
@@ -627,7 +641,6 @@ class App:
             except AttributeError:
                 self._unitOutput[id]["text"] = ""
                 
-                
     def _popupDialog(self, message):
         tkMessageBox.showwarning("", message)
         
@@ -650,6 +663,9 @@ class App:
                     file.write("Units\r\n")
                     for id in xrange(len(UNITS)):
                         file.write(self._unitInput[id].get()+"\r\n")
+                    file.write("\r\nCombat Research\r\n")
+                    for id in xrange(len(UNITS)):
+                        file.write(self._combatResearchInput[id].get()+"\r\n")
                     file.write("\r\nMonsters\r\n")
                     for id in xrange(len(MONSTERS)):
                         file.write(self._monsterInput[id].get()+"\r\n")
@@ -666,6 +682,12 @@ class App:
                         self._unitInput[id].insert(Tkinter.END,
                                                    file.readline().strip())
                         self._unitOutput[id]["text"] = ""
+                    file.readline()
+                    file.readline()
+                    for id in xrange(len(UNITS)):
+                        self._combatResearchInput[id].delete(0, Tkinter.END)
+                        self._combatResearchInput[id].insert(
+                            Tkinter.END, file.readline().strip())
                     file.readline()
                     file.readline()
                     for id in xrange(len(MONSTERS)):
