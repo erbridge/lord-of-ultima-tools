@@ -584,7 +584,8 @@ class App:
                 if combatResearch > 1:
                     UNITS[id].setResearch(combatResearch)
                 elif combatResearch < 0:
-                    self._popupDialog("You need a positive research percentage.")
+                    self._popupDialog(
+                        "You need a positive research percentage.")
                     return None
             except ValueError:
                 UNITS[id].setResearch()
@@ -660,15 +661,15 @@ class App:
             with tkFileDialog.asksaveasfile(
                 mode="w", defaultextension=".sav",
                 filetypes=[("Save files", ".sav")]) as file:
-                    file.write("Units\r\n")
+                    file.write("Units\n")
                     for id in xrange(len(UNITS)):
-                        file.write(self._unitInput[id].get()+"\r\n")
-                    file.write("\r\nCombat Research\r\n")
+                        file.write(self._unitInput[id].get()+"\n")
+                    file.write("\nCombat Research\n")
                     for id in xrange(len(UNITS)):
-                        file.write(self._combatResearchInput[id].get()+"\r\n")
-                    file.write("\r\nMonsters\r\n")
+                        file.write(self._combatResearchInput[id].get()+"\n")
+                    file.write("\nMonsters\n")
                     for id in xrange(len(MONSTERS)):
-                        file.write(self._monsterInput[id].get()+"\r\n")
+                        file.write(self._monsterInput[id].get()+"\n")
         except AttributeError:
             pass
                 
