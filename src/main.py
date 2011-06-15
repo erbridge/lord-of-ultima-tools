@@ -1,6 +1,7 @@
 # www.lordofultima.com/en/wiki/view/units
 # TODO: create sent button with subtracts sent units from army.
-# FIXME: disallow negative unit types
+# FIXME: disallow negative unit counts
+# TODO: add research modifiers
 
 import copy, Tkinter, tkMessageBox
 
@@ -446,10 +447,12 @@ class DungeonRaid:
                         if maxUnit.getName() == unit.getName():
                             number = maxUnit.getNumber()\
                                 + priorityUnit.getNumber()
-                            if number * proportion <= unit.getNumber():
+                            weightedNumber = number * proportion
+                            if weightedNumber <= unit.getNumber():
                                 for id in xrange(len(UNITS)):
                                     if UNITS[id].getName() == unit.getName():
-                                        army[id] = UNITS[id].create(int(number))
+                                        army[id] = UNITS[id].create(
+                                            int(weightedNumber))
                                         break
                                 armyComplete = True
                             else:
