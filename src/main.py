@@ -1,5 +1,6 @@
 # www.lordofultima.com/en/wiki/view/units
 # TODO: create sent button with subtracts sent units from army.
+# FIXME: disallow negative unit types
 
 import copy, Tkinter, tkMessageBox
 
@@ -556,7 +557,7 @@ class App:
             frame, text="Send Units", command=self._onSend).pack()
         frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
         
-    def _onCalculate(self):
+    def _onCalculate(self, sent=False):
         units = []#[None]*len(UNITS)
         for id in xrange(len(UNITS)):
             unitNumber = self._unitInput[id].get()
@@ -587,9 +588,12 @@ class App:
         try:
             recommendations = raid.getRecommended()
         except InsufficientTroopsError:
-            self._popupDialog(
-                "Insufficient troops, but you may be able "
-                "to get away with sending them all!")
+            if not sent:
+                msg = "Insufficient troops, but you may be able "\
+                    "to get away with sending them all!"
+            else:
+                msg = "Insufficient troops for another raid."
+            self._popupDialog(msg)
             return None
         except NoMonsterError:
             self._popupDialog(
@@ -624,6 +628,7 @@ class App:
                 self._unitInput[id].insert(Tkinter.END, remaining)
             except ValueError:
                 continue
+        self._onCalculate(sent=True)
         
             
 if __name__ == "__main__":
