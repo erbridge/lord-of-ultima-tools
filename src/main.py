@@ -1,7 +1,7 @@
 # www.lordofultima.com/en/wiki/view/units
 # TODO: create sent button with subtracts sent units from army.
 
-import copy, Tkinter
+import copy, Tkinter, tkMessageBox
 
 
 class NotCreatedError(Exception):   pass
@@ -11,6 +11,9 @@ class TypeMismatchError(Exception): pass
 
 
 class NoMonsterError(Exception):    pass
+
+
+class InsufficientTroopsError(Exception):   pass
 
 
 class Units:
@@ -457,6 +460,8 @@ class DungeonRaid:
                                         break
                             break
                     break
+        if not armyComplete:
+            raise InsufficientTroopsError
         return army
         
     def getCasualties(self):
@@ -576,7 +581,21 @@ class App:
 #                monsters[id] = MONSTERS[id].create(monsterNumber)
                 
         raid = DungeonRaid(units, expectedMonsters=monsters)
-        recommendations = raid.getRecommended()
+        try:
+            recommendations = raid.getRecommended()
+        except InsufficientTroopsError:
+            self._popupDialog(
+                "Insufficient troops, but you may be able "
+                "to get away with sending them all!")
+            return None
+        except NoMonsterError:
+            self._popupDialog(
+                "What? No monsters?")
+            return None
+        except TypeMismatchError:
+            self._popupDialog(
+                "Monsters need to come from the same dungeon type!")
+            return None
         for id in xrange(len(UNITS)):
             try:
                 number = recommendations[id].getNumber()
@@ -588,6 +607,10 @@ class App:
                 self._unitOutput[id]["text"] = ""
             except AttributeError:
                 self._unitOutput[id]["text"] = ""
+                
+                
+    def _popupDialog(self, message):
+        tkMessageBox.showwarning("", message)
         
             
 if __name__ == "__main__":
