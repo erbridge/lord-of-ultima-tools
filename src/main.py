@@ -1,4 +1,5 @@
 # www.lordofultima.com/en/wiki/view/units
+# TODO: create sent button with subtracts sent units from army.
 
 import copy, Tkinter
 
@@ -256,8 +257,109 @@ class Ghouls(Monsters):
         Monsters.__init__(self, "Ghoul(s)", "h",
                           75, 30, 30, 15, 30, 1, 33)
         
+
+class Gargoyles(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Gargoyle(s)", "h",
+                          200, 80, 80, 40, 80, 4, 135)
         
-MONSTERS = [Skeletons(), Ghouls()]
+
+class Daemons(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Daemons(s)", "h",
+                          500, 200, 200, 100, 200, 10, 340)
+        
+
+class Orcs(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Orc(s)", "m",
+                          60, 12, 22, 22, 22, 1, 30)
+        
+        
+class Troglodytes(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Troglodyte(s)", "m",
+                          90, 16, 33, 33, 33, 1, 40)
+        
+        
+class Ettins(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Ettin(s)", "m",
+                          180, 37, 75, 75, 75, 3, 120)
+        
+        
+class Minotaurs(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Minotaur(s)", "m",
+                          400, 75, 150, 150, 150, 6, 250)
+        
+        
+class Spiders(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Giant Spider(s)", "f",
+                          55, 16, 6, 16, 16, 1, 25)
+
+
+class Thieves(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Thieves", "f",
+                          80, 28, 14, 28, 28, 1, 33)
+        
+        
+class Centaurs(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Centaur(s)", "f",
+                          110, 40, 20, 40, 40, 2, 70)
+        
+        
+class Trolls(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Troll(s)", "f",
+                          450, 160, 80, 160, 160, 8, 290)
+        
+
+class PirateDhows(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Pirate Dhow(s)", "s",
+                          150, 60, 60, 60, 30, 3, 75)
+        
+        
+class PirateSloops(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Pirate Sloop(s)", "s",
+                          500, 200, 200, 200, 100, 10, 250)
+        
+        
+class PirateFrigates(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Pirate Frigate(s)", "s",
+                          1250, 500, 500, 500, 250, 25, 650)
+        
+        
+class PirateGalleons(Monsters):
+    
+    def __init__(self):
+        Monsters.__init__(self, "Pirate War Galleon(s)", "s",
+                          2500, 1000, 1000, 1000, 500, 50, 1400)
+        
+        
+MONSTERS = [Skeletons(), Ghouls(), Gargoyles(), Daemons(), Orcs(),
+            Troglodytes(), Ettins(), Minotaurs(), Spiders(), Thieves(),
+            Centaurs(), Trolls(), PirateDhows(), PirateSloops(),
+            PirateFrigates(), PirateGalleons()]
         
         
 class Dungeon:
