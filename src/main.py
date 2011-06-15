@@ -86,8 +86,8 @@ class Berserkers(Units):
 class Rangers(Units):
     
     def __init__(self):
-        Units.__init__(self, "Ranger(s)", "i", 0, 0, 150, 6, 0,
-                       1, 20, 10, 50, 15, 12, 10, 15)
+        Units.__init__(self, "Ranger(s)", "i", 160, 0, 0, 3, 0,
+                       1, 20, 10, 30, 40, 10, 25, 15)
         
 
 class Guardians(Units):
