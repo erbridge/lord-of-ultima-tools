@@ -1,8 +1,7 @@
 # www.lordofultima.com/en/wiki/view/units
 # TODO: add research modifiers
-# TODO: allow saving of armies
 
-import copy, Tkinter, tkMessageBox
+import copy, pickle, Tkinter, tkMessageBox, tkFileDialog
 
 
 class NotCreatedError(Exception):   pass
@@ -554,9 +553,17 @@ class App:
     def _createButtons(self):
         frame = Tkinter.Frame(self._frame)
         Tkinter.Button(
-            frame, text="Calculate", command=self._onCalculate).pack()
+            frame, text="Calculate", command=self._onCalculate).grid(
+                row=0, column=0)
         Tkinter.Button(
-            frame, text="Send Units", command=self._onSend).pack()
+            frame, text="Send Units", command=self._onSend).grid(
+                row=0, column=1)
+        Tkinter.Button(
+            frame, text="Save Raid", command=self._onSave).grid(
+                row=0, column=2)
+        Tkinter.Button(
+            frame, text="Load Raid", command=self._onLoad).grid(
+                row=0, column=3)
         frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
         
     def _onCalculate(self, sent=False):
@@ -634,6 +641,39 @@ class App:
             except ValueError:
                 continue
         self._onCalculate(sent=True)
+        
+    def _onSave(self):
+        try:
+            with tkFileDialog.asksaveasfile(
+                mode="w", defaultextension=".sav",
+                filetypes=[("Save files", ".sav")]) as file:
+                    file.write("Units\r\n")
+                    for id in xrange(len(UNITS)):
+                        file.write(self._unitInput[id].get()+"\r\n")
+                    file.write("\r\nMonsters\r\n")
+                    for id in xrange(len(MONSTERS)):
+                        file.write(self._monsterInput[id].get()+"\r\n")
+        except AttributeError:
+            pass
+                
+    def _onLoad(self):
+        try:
+            with tkFileDialog.askopenfile(
+                mode="rU", filetypes=[("Save files", ".sav")]) as file:
+                    file.readline()
+                    for id in xrange(len(UNITS)):
+                        self._unitInput[id].delete(0, Tkinter.END)
+                        self._unitInput[id].insert(Tkinter.END,
+                                                   file.readline().strip())
+                        self._unitOutput[id]["text"] = ""
+                    file.readline()
+                    file.readline()
+                    for id in xrange(len(MONSTERS)):
+                        self._monsterInput[id].delete(0, Tkinter.END)
+                        self._monsterInput[id].insert(Tkinter.END,
+                                                      file.readline().strip())
+        except AttributeError:
+            pass
         
             
 if __name__ == "__main__":
