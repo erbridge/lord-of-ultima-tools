@@ -1,7 +1,6 @@
 # www.lordofultima.com/en/wiki/view/units
-# TODO: create sent button with subtracts sent units from army.
-# FIXME: disallow negative unit counts
 # TODO: add research modifiers
+# TODO: allow saving of armies
 
 import copy, Tkinter, tkMessageBox
 
@@ -566,8 +565,11 @@ class App:
             unitNumber = self._unitInput[id].get()
             try:
                 unitNumber = int(unitNumber)
-                if unitNumber:
+                if unitNumber > 0:
                     units.append(UNITS[id].create(unitNumber))
+                elif unitNumber < 0:
+                    self._popupDialog("You need a positive number of units.")
+                    return None 
             except ValueError:
                 pass
 #                unitNumber = 0
