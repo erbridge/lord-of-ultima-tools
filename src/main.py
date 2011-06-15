@@ -549,9 +549,12 @@ class App:
         recFrame.grid(row=0, column=2, sticky=Tkinter.N)
         
     def _createButtons(self):
+        frame = Tkinter.Frame(self._frame)
         Tkinter.Button(
-            self._frame, text="Calculate", command=self._onCalculate).grid(
-                row=1, columnspan=3)#, sticky=Tkinter.E)
+            frame, text="Calculate", command=self._onCalculate).pack()
+        Tkinter.Button(
+            frame, text="Send Units", command=self._onSend).pack()
+        frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
         
     def _onCalculate(self):
         units = []#[None]*len(UNITS)
@@ -611,6 +614,16 @@ class App:
                 
     def _popupDialog(self, message):
         tkMessageBox.showwarning("", message)
+        
+    def _onSend(self):
+        for id in xrange(len(UNITS)):
+            try:
+                remaining = int(self._unitInput[id].get())\
+                    - int(self._unitOutput[id]["text"])
+                self._unitInput[id].delete(0, Tkinter.END)
+                self._unitInput[id].insert(Tkinter.END, remaining)
+            except ValueError:
+                continue
         
             
 if __name__ == "__main__":
