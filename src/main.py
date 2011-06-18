@@ -658,7 +658,7 @@ class App:
         self._unitInput = [None]*len(UNITS)
         self._combatResearchInput = [None]*len(UNITS)
         for id in xrange(len(UNITS)):
-            self._unitInput[id] = Tkinter.Entry(frame)
+            self._unitInput[id] = Tkinter.Entry(frame, width=12)
             self._unitInput[id].grid(row=id, column=0)
             Tkinter.Label(frame, text=" (").grid(row=id, column=1)
             self._combatResearchInput[id] = Tkinter.Entry(frame, width=3)
@@ -677,7 +677,7 @@ class App:
         frame = Tkinter.Frame(self._monsterFrame)
         self._monsterInput = [None]*len(MONSTERS)
         for id in xrange(len(MONSTERS)):
-            self._monsterInput[id] = Tkinter.Entry(frame)
+            self._monsterInput[id] = Tkinter.Entry(frame, width=6)
             self._monsterInput[id].grid(row=id, column=0)
             Tkinter.Label(
                 frame, text=MONSTERS[id].getName()).grid(
@@ -696,7 +696,7 @@ class App:
         frame = Tkinter.Frame(self._bossFrame)
         self._bossInput = [None]*len(BOSSES)
         for id in xrange(len(BOSSES)):
-            self._bossInput[id] = Tkinter.Entry(frame, width=2)
+            self._bossInput[id] = Tkinter.Entry(frame, width=3)
             self._bossInput[id].grid(row=id, column=0)
             Tkinter.Label(
                 frame, text=BOSSES[id].getName()).grid(
@@ -713,7 +713,7 @@ class App:
         frame = Tkinter.Frame(recFrame)
         self._unitOutput = [None]*len(UNITS)
         for id in xrange(len(UNITS)):
-            self._unitOutput[id] = Tkinter.Label(frame, width=16)
+            self._unitOutput[id] = Tkinter.Label(frame, width=10)
             self._unitOutput[id].grid(row=id, column=0)
             Tkinter.Label(
                 frame, text=UNITS[id].getName()).grid(
@@ -731,12 +731,12 @@ class App:
         Tkinter.Button(
             frame, text="Send Units", command=self._onSend).grid(
                 row=0, column=1)
-        Tkinter.Button(
-            frame, text="Save Army", command=self._onSave).grid(
-                row=0, column=2)
-        Tkinter.Button(
-            frame, text="Load Army", command=self._onLoad).grid(
-                row=0, column=3)
+#        Tkinter.Button(
+#            frame, text="Save Army", command=self._onSave).grid(
+#                row=0, column=2)
+#        Tkinter.Button(
+#            frame, text="Load Army", command=self._onLoad).grid(
+#                row=0, column=3)
         frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
         
     def _onCalculate(self, sent=False):
@@ -889,6 +889,11 @@ class App:
                 
     def _createMenus(self):
         menubar = Tkinter.Menu(self._master)
+        
+        file = Tkinter.Menu(menubar, tearoff=0)
+        file.add_command(label="Save Army...", command=self._onSave)
+        file.add_command(label="Load Army...", command=self._onLoad)
+        menubar.add_cascade(label="File", menu=file)
                 
         self._view = Tkinter.IntVar()
         self._view.set(0)
