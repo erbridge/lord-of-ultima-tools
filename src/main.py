@@ -715,12 +715,12 @@ class App:
             frame, text="Send Units", command=self._onSend).grid(
                 row=0, column=1)
         Tkinter.Button(
-            frame, text="Save Raid", command=self._onSave).grid(
+            frame, text="Save Army", command=self._onSave).grid(
                 row=0, column=2)
         Tkinter.Button(
-            frame, text="Load Raid", command=self._onLoad).grid(
+            frame, text="Load Army", command=self._onLoad).grid(
                 row=0, column=3)
-        frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
+        frame.grid(row=1, columnspan=4)#, sticky=Tkinter.E)
         
     def _onCalculate(self, sent=False):
         units = []#[None]*len(UNITS)
@@ -831,44 +831,44 @@ class App:
     def _onSave(self):
         try:
             with tkFileDialog.asksaveasfile(
-                mode="w", defaultextension=".sav",
-                filetypes=[("Save files", ".sav")]) as file:
+                mode="w", defaultextension=".arm",
+                filetypes=[("Army save files", ".arm")]) as file:
                     file.write("Units\n")
                     for id in xrange(len(UNITS)):
                         file.write(self._unitInput[id].get()+"\n")
                     file.write("\nCombat Research\n")
                     for id in xrange(len(UNITS)):
                         file.write(self._combatResearchInput[id].get()+"\n")
-                    file.write("\nMonsters\n")
-                    for id in xrange(len(MONSTERS)):
-                        file.write(self._monsterInput[id].get()+"\n")
         except AttributeError:
             pass
                 
     def _onLoad(self):
-        try:
-            with tkFileDialog.askopenfile(
-                mode="rU", filetypes=[("Save files", ".sav")]) as file:
-                    file.readline()
-                    for id in xrange(len(UNITS)):
-                        self._unitInput[id].delete(0, Tkinter.END)
-                        self._unitInput[id].insert(Tkinter.END,
-                                                   file.readline().strip())
-                        self._unitOutput[id]["text"] = ""
-                    file.readline()
-                    file.readline()
-                    for id in xrange(len(UNITS)):
-                        self._combatResearchInput[id].delete(0, Tkinter.END)
-                        self._combatResearchInput[id].insert(
-                            Tkinter.END, file.readline().strip())
-                    file.readline()
-                    file.readline()
-                    for id in xrange(len(MONSTERS)):
-                        self._monsterInput[id].delete(0, Tkinter.END)
-                        self._monsterInput[id].insert(Tkinter.END,
-                                                      file.readline().strip())
-        except AttributeError:
-            pass
+        filename = tkFileDialog.askopenfilename(
+            filetypes=[("Army save files", ".arm"),
+                       ("Old raid save files", ".sav")])
+        if not filename:
+            return None
+        with open(filename, "rU") as file:
+            file.readline()
+            for id in xrange(len(UNITS)):
+                self._unitInput[id].delete(0, Tkinter.END)
+                self._unitInput[id].insert(Tkinter.END,
+                                           file.readline().strip())
+                self._unitOutput[id]["text"] = ""
+            file.readline()
+            file.readline()
+            for id in xrange(len(UNITS)):
+                self._combatResearchInput[id].delete(0, Tkinter.END)
+                self._combatResearchInput[id].insert(
+                    Tkinter.END, file.readline().strip())
+            if filename[-4:] != ".sav":
+                return None
+            file.readline()
+            file.readline()
+            for id in xrange(len(MONSTERS)):
+                self._monsterInput[id].delete(0, Tkinter.END)
+                self._monsterInput[id].insert(Tkinter.END,
+                                              file.readline().strip())
         
             
 if __name__ == "__main__":
