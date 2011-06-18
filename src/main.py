@@ -899,7 +899,7 @@ class App:
         self._view.set(0)
         
         view = Tkinter.Menu(menubar, tearoff=0)
-        view.add_radiobutton(label="Monsters", command=self._changeView,
+        view.add_radiobutton(label="Dungeon", command=self._changeView,
                              variable=self._view, value=0)
         view.add_radiobutton(label="Boss", command=self._changeView,
                              variable=self._view, value=1)
