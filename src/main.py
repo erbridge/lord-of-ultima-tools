@@ -519,17 +519,13 @@ class Sea(Dungeon):
         if level == 1:
             self._monsters = []
         
-            
-class DungeonRaid:
+
+class Raid:
     
-    def __init__(self, army, expectedMonsters=None, dungeon=None):
+    def __init__(self, army, expectedMonsters, intensity):
         self._army = army
-        self._intensity = 0.1
-        
-        if dungeon is not None:
-            self._expectedMonsters = dungeon.getMonsters()
-        else:
-            self._expectedMonsters = expectedMonsters
+        self._expectedMonsters = expectedMonsters
+        self._intensity = intensity
             
     def getRecommended(self):
         try:
@@ -604,7 +600,25 @@ class DungeonRaid:
         for monster in self._expectedMonsters:
             loot += monster.getLoot()
         return loot
+    
+    
+class DungeonRaid(Raid):
+    
+    def __init__(self, army, expectedMonsters=None, dungeon=None):
+        if dungeon is not None:
+            expectedMonsters = dungeon.getMonsters()
+        
+        if expectedMonsters is None:
+            raise NoMonsterError
+        
+        Raid.__init__(self, army, expectedMonsters, 0.1)
             
+            
+class BossRaid(Raid):
+    
+    def __init__(self, army, boss):
+        Raid.__init__(self, army, [boss], 0.5*0.2) # Assume the boss is killed.
+        
 
 class App:
     
