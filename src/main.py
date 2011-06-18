@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # www.lordofultima.com/en/wiki/view/units
+# FIXME: stop calculation from using sea units for land dungeons.
 
 
 import copy, Tkinter, tkMessageBox, tkFileDialog
@@ -394,7 +395,84 @@ MONSTERS = [Skeletons(), Ghouls(), Gargoyles(), Daemons(), Orcs(),
             Troglodytes(), Ettins(), Minotaurs(), Spiders(), Thieves(),
             Centaurs(), Trolls(), PirateDhows(), PirateSloops(),
             PirateFrigates(), PirateGalleons()]
+
+
+BOSS_STATS = [(1, 2500, 625, 420, 500),
+              (2, 1500, 3750, 2500, 3000),
+              (3, 100000, 25000, 17000, 20000),
+              (4, 200000, 50000, 33000, 40000),
+              (5, 500000, 125000, 83000, 100000),
+              (6, 750000, 187500, 125000, 150000),
+              (7, 1000000, 250000, 170000, 200000),
+              (8, 1500000, 375000, 250000, 300000),
+              (9, 2250000, 562500, 375000, 450000),
+              (10, 3000000, 750000, 500000, 600000)]
+
+
+class Boss(Monsters):   
+    
+    def __init__(self, name):
+        self._name = name
         
+    def create(self, level):
+        lvl, attack, strongDefence, weakDefence, loot = BOSS_STATS[level-1]
+        
+        assert lvl == level
+        
+        infantry, cavalry, magic, artillery = self.getDefences(strongDefence,
+                                                               weakDefence)
+        boss = copy.deepcopy(self)    
+        Monsters.__init__(boss, boss.getName(), boss.getType(), attack,
+                          infantry,  cavalry, magic, artillery, 20, loot)
+        return boss
+            
+    def getDefences(self, strongDefence, weakDefence):
+        if self._name == "Moloch":
+            return strongDefence, strongDefence, weakDefence, strongDefence
+        elif self._name == "Hydra":
+            return weakDefence, strongDefence, strongDefence, strongDefence
+        elif self._name == "Dragon":
+            return strongDefence, weakDefence, strongDefence, strongDefence
+        elif self._name == "Octopus":
+            return strongDefence, strongDefence, strongDefence, weakDefence
+        
+    def getType(self):
+        if self._name == "Moloch":
+            return "h"
+        elif self._name == "Hydra":
+            return "m"
+        elif self._name == "Dragon":
+            return "f"
+        elif self._name == "Octopus":
+            return "s"
+
+
+class Moloch(Boss):
+    
+    def __init__(self):
+        Boss.__init__(self, "Moloch")
+
+
+class Hydra(Boss):
+    
+    def __init__(self):
+        Boss.__init__(self, "Hydra")
+        
+        
+class Dragon(Boss):
+    
+    def __init__(self):
+        Boss.__init__(self, "Dragon")        
+        
+        
+class Octopus(Boss):
+    
+    def __init__(self):
+        Boss.__init__(self, "Octopus")
+        
+        
+BOSSES = [Moloch(), Hydra(), Dragon(), Octopus()]
+
         
 class Dungeon:
     
