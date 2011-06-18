@@ -44,6 +44,9 @@ class NoMonsterError(Exception):    pass
 class InsufficientTroopsError(Exception):   pass
 
 
+class LevelError(Exception):   pass
+
+
 class Units:
     
     def __init__(self, name, type, wood, stone, iron, food, gold, space,
@@ -413,8 +416,12 @@ class Boss(Monsters):
     
     def __init__(self, name):
         self._name = name
+        self._number = 1
+        
         
     def create(self, level):
+        if level > 10 or level <= 0:
+            raise LevelError
         lvl, attack, strongDefence, weakDefence, loot = BOSS_STATS[level-1]
         
         assert lvl == level
@@ -617,7 +624,7 @@ class DungeonRaid(Raid):
 class BossRaid(Raid):
     
     def __init__(self, army, boss):
-        Raid.__init__(self, army, [boss], 0.5*0.2) # Assume the boss is killed.
+        Raid.__init__(self, army, boss, 0.5*0.2) # Assume the boss is killed.
         
 
 class App:
@@ -628,6 +635,7 @@ class App:
         
         self._createUnitInputBoxes()
         self._createMonsterInputBoxes()
+        self._createBossInputBoxes()
         self._createRecommendationBoxes()
         self._createButtons()
         
@@ -651,18 +659,38 @@ class App:
         unitFrame.grid(row=0, column=0, sticky=Tkinter.N)
         
     def _createMonsterInputBoxes(self):
-        monsterFrame = Tkinter.Frame(self._frame)
-        Tkinter.Label(monsterFrame, text="Expected Monsters:").pack()
-        frame = Tkinter.Frame(monsterFrame)
+        frame = Tkinter.Frame(self._frame)
+        
+        Tkinter.Label(frame, text="Expected Monsters:").pack()
+        
+        monsterFrame = Tkinter.Frame(frame)
         self._monsterInput = [None]*len(MONSTERS)
         for id in xrange(len(MONSTERS)):
-            self._monsterInput[id] = Tkinter.Entry(frame)
+            self._monsterInput[id] = Tkinter.Entry(monsterFrame)
             self._monsterInput[id].grid(row=id, column=0)
             Tkinter.Label(
-                frame, text=MONSTERS[id].getName()).grid(
+                monsterFrame, text=MONSTERS[id].getName()).grid(
                     row=id, column=1, sticky=Tkinter.W)
-        frame.pack()
-        monsterFrame.grid(row=0, column=1, sticky=Tkinter.N)
+        monsterFrame.pack()
+        
+        frame.grid(row=0, column=1, sticky=Tkinter.N)
+        
+    def _createBossInputBoxes(self):
+        frame = Tkinter.Frame(self._frame)
+        
+        Tkinter.Label(frame, text="Boss Level:").pack()
+        
+        bossFrame = Tkinter.Frame(frame)
+        self._bossInput = [None]*len(BOSSES)
+        for id in xrange(len(BOSSES)):
+            self._bossInput[id] = Tkinter.Entry(bossFrame, width=2)
+            self._bossInput[id].grid(row=id, column=0)
+            Tkinter.Label(
+                bossFrame, text=BOSSES[id].getName()).grid(
+                    row=id, column=1, sticky=Tkinter.W)
+        bossFrame.pack()
+        
+        frame.grid(row=0, column=2, sticky=Tkinter.N)
         
     def _createRecommendationBoxes(self):
         recFrame = Tkinter.Frame(self._frame)
@@ -676,7 +704,7 @@ class App:
                 frame, text=UNITS[id].getName()).grid(
                     row=id, column=1, sticky=Tkinter.W)
         frame.pack()
-        recFrame.grid(row=0, column=2, sticky=Tkinter.N)
+        recFrame.grid(row=0, column=3, sticky=Tkinter.N)
         
     def _createButtons(self):
         frame = Tkinter.Frame(self._frame)
@@ -729,8 +757,29 @@ class App:
                     monsters.append(MONSTERS[id].create(monsterNumber))
             except ValueError:
                 pass
-                
-        raid = DungeonRaid(units, expectedMonsters=monsters)
+        
+        boss = []
+        for id in xrange(len(BOSSES)):
+            bossLevel = self._bossInput[id].get()
+            try:
+                bossLevel = int(bossLevel)
+                if bossLevel:
+                    boss.append(BOSSES[id].create(bossLevel))
+            except ValueError:
+                pass
+            except LevelError:
+                self._popupDialog(
+                    "A boss' maximum level must be between 1 and 10!")
+                return None
+        
+        if monsters and boss:
+            self._popupDialog("You can't mix monsters with bosses!")
+            return None
+        elif boss:
+            raid = BossRaid(units, boss)
+        else:
+            raid = DungeonRaid(units, expectedMonsters=monsters)
+            
         try:
             recommendations = raid.getRecommended()
         except InsufficientTroopsError:
@@ -746,9 +795,13 @@ class App:
                 "What? No monsters?")
             return None
         except TypeMismatchError:
-            self._popupDialog(
-                "Monsters need to come from the same dungeon type!")
+            if boss:
+                msg = "You can only raid one boss at a time!"
+            else:
+                "Monsters need to come from the same dungeon type!"
+            self._popupDialog(msg)
             return None
+        
         for id in xrange(len(UNITS)):
             try:
                 number = recommendations[id].getNumber()
