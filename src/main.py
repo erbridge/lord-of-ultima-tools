@@ -630,14 +630,25 @@ class BossRaid(Raid):
 class App:
     
     def __init__(self, master):
+        self._master = master
         self._frame = Tkinter.Frame(master)
         self._frame.pack()
         
+        self._views = []
+        self._enemyInput = []
+        self._output = []
+                
         self._createUnitInputBoxes()
         self._createMonsterInputBoxes()
         self._createBossInputBoxes()
         self._createRecommendationBoxes()
         self._createButtons()
+        
+        self._createMenus()
+        
+        self._views[0].grid(row=0, column=1, sticky=Tkinter.N)
+        self._oldView = Tkinter.IntVar()
+        self._oldView.set(self._view.get())
         
     def _createUnitInputBoxes(self):
         unitFrame = Tkinter.Frame(self._frame)
@@ -657,41 +668,45 @@ class App:
                     row=id, column=3, sticky=Tkinter.W)
         frame.pack()
         unitFrame.grid(row=0, column=0, sticky=Tkinter.N)
-        
+                
     def _createMonsterInputBoxes(self):
-        frame = Tkinter.Frame(self._frame)
+        self._monsterFrame = Tkinter.Frame(self._frame)
         
-        Tkinter.Label(frame, text="Expected Monsters:").pack()
+        Tkinter.Label(self._monsterFrame, text="Expected Monsters:").pack()
         
-        monsterFrame = Tkinter.Frame(frame)
+        frame = Tkinter.Frame(self._monsterFrame)
         self._monsterInput = [None]*len(MONSTERS)
         for id in xrange(len(MONSTERS)):
-            self._monsterInput[id] = Tkinter.Entry(monsterFrame)
+            self._monsterInput[id] = Tkinter.Entry(frame)
             self._monsterInput[id].grid(row=id, column=0)
             Tkinter.Label(
-                monsterFrame, text=MONSTERS[id].getName()).grid(
+                frame, text=MONSTERS[id].getName()).grid(
                     row=id, column=1, sticky=Tkinter.W)
-        monsterFrame.pack()
+        frame.pack()
         
-        frame.grid(row=0, column=1, sticky=Tkinter.N)
+        self._views.append(self._monsterFrame)
+        
+        self._enemyInput.extend(self._monsterInput)
         
     def _createBossInputBoxes(self):
-        frame = Tkinter.Frame(self._frame)
+        self._bossFrame = Tkinter.Frame(self._frame)
         
-        Tkinter.Label(frame, text="Boss Level:").pack()
+        Tkinter.Label(self._bossFrame, text="Boss Level:").pack()
         
-        bossFrame = Tkinter.Frame(frame)
+        frame = Tkinter.Frame(self._bossFrame)
         self._bossInput = [None]*len(BOSSES)
         for id in xrange(len(BOSSES)):
-            self._bossInput[id] = Tkinter.Entry(bossFrame, width=2)
+            self._bossInput[id] = Tkinter.Entry(frame, width=2)
             self._bossInput[id].grid(row=id, column=0)
             Tkinter.Label(
-                bossFrame, text=BOSSES[id].getName()).grid(
+                frame, text=BOSSES[id].getName()).grid(
                     row=id, column=1, sticky=Tkinter.W)
-        bossFrame.pack()
+        frame.pack()
         
-        frame.grid(row=0, column=2, sticky=Tkinter.N)
+        self._views.append(self._bossFrame)
         
+        self._enemyInput.extend(self._bossInput)
+                
     def _createRecommendationBoxes(self):
         recFrame = Tkinter.Frame(self._frame)
         Tkinter.Label(recFrame, text="Recommended Units:").pack()
@@ -704,7 +719,9 @@ class App:
                 frame, text=UNITS[id].getName()).grid(
                     row=id, column=1, sticky=Tkinter.W)
         frame.pack()
-        recFrame.grid(row=0, column=3, sticky=Tkinter.N)
+        recFrame.grid(row=0, column=2, sticky=Tkinter.N)
+        
+        self._output.extend(self._unitOutput)
         
     def _createButtons(self):
         frame = Tkinter.Frame(self._frame)
@@ -720,7 +737,7 @@ class App:
         Tkinter.Button(
             frame, text="Load Army", command=self._onLoad).grid(
                 row=0, column=3)
-        frame.grid(row=1, columnspan=4)#, sticky=Tkinter.E)
+        frame.grid(row=1, columnspan=3)#, sticky=Tkinter.E)
         
     def _onCalculate(self, sent=False):
         units = []#[None]*len(UNITS)
@@ -869,6 +886,32 @@ class App:
                 self._monsterInput[id].delete(0, Tkinter.END)
                 self._monsterInput[id].insert(Tkinter.END,
                                               file.readline().strip())
+                
+    def _createMenus(self):
+        menubar = Tkinter.Menu(self._master)
+                
+        self._view = Tkinter.IntVar()
+        self._view.set(0)
+        
+        view = Tkinter.Menu(menubar, tearoff=0)
+        view.add_radiobutton(label="Monsters", command=self._changeView,
+                             variable=self._view, value=0)
+        view.add_radiobutton(label="Boss", command=self._changeView,
+                             variable=self._view, value=1)
+        menubar.add_cascade(label="Type", menu=view)
+        
+        self._master.config(menu=menubar)
+        
+    def _changeView(self):
+        self._views[self._oldView.get()].grid_forget()
+        self._views[self._view.get()].grid(row=0, column=1, sticky=Tkinter.N)
+        self._oldView.set(self._view.get())
+        
+        for input in self._enemyInput:
+            input.delete(0, Tkinter.END)
+        
+        for output in self._output:
+            output["text"] = ""
         
             
 if __name__ == "__main__":
