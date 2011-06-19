@@ -923,6 +923,9 @@ if __name__ == "__main__":
     main = Tkinter.Tk()
     main.title("Lord of Ultima: Raid Calculator")
     
+    # Only works in windows:
+    main.wm_iconbitmap("images/logo256.ico")
+    
     app = App(main)
     
     main.mainloop()

@@ -2,7 +2,7 @@ from distutils.core import setup
 import py2exe
 
 setup(name='Lord of Ultima Tools',
-      version='1.0.4',
+      version='1.0.5',
       author_email='fantasizer@gmail.com',
 #      py_modules=["main"],
 #      console=["main.py"]),
